@@ -48,6 +48,8 @@
 extern "C"
 {
 #include "sdl/SDL.h"
+
+FILE __iob_func[3] = { *stdin,*stdout,*stderr };
 };
 
 const int bpp=12;
@@ -108,7 +110,7 @@ int main(int argc, char* argv[])
 	SDL_Texture* sdlTexture = SDL_CreateTexture(sdlRenderer,pixformat, SDL_TEXTUREACCESS_STREAMING,pixel_w,pixel_h);
 
 	FILE *fp=NULL;
-	fp=fopen("test_yuv420p_320x180.yuv","rb+");
+	fp=fopen("bigbuckbunny_480x272.h265.yuv","rb+");
 
 	if(fp==NULL){
 		printf("cannot open this file\n");

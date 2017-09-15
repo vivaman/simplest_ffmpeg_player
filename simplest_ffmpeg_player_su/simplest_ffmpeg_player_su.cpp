@@ -48,6 +48,8 @@ extern "C"
 #include "libavformat/avformat.h"
 #include "libswscale/swscale.h"
 #include "SDL2/SDL.h"
+
+FILE __iob_func[3] = { *stdin,*stdout,*stderr };
 };
 #else
 //Linux...
