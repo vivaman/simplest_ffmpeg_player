@@ -56,13 +56,13 @@ extern "C"
 
 int main(int argc, char* argv[])
 {
-	AVFormatContext	*pFormatCtx;
+	AVFormatContext	*pFormatCtx;//音频封装格式中包含的信息
 	int				i, videoindex;
-	AVCodecContext	*pCodecCtx;
-	AVCodec			*pCodec;
-	AVFrame	*pFrame,*pFrameYUV;
+	AVCodecContext	*pCodecCtx;//编解码包含的信息
+	AVCodec			*pCodec;//解码器信息
+	AVFrame	*pFrame,*pFrameYUV;//存储原始数据相关的信息
 	uint8_t *out_buffer;
-	AVPacket *packet;
+	AVPacket *packet;//存储压缩编码数据相关信息
 	int y_size;
 	int ret, got_picture;
 	struct SwsContext *img_convert_ctx;
@@ -77,36 +77,37 @@ int main(int argc, char* argv[])
 
 	FILE *fp_yuv;
 
-	av_register_all();
+	av_register_all();//初始化
 	avformat_network_init();
 	pFormatCtx = avformat_alloc_context();
 
-	if(avformat_open_input(&pFormatCtx,filepath,NULL,NULL)!=0){
+	if(avformat_open_input(&pFormatCtx,filepath,NULL,NULL)!=0){//打开文件流并读取文件头
 		printf("Couldn't open input stream.\n");
 		return -1;
 	}
-	if(avformat_find_stream_info(pFormatCtx,NULL)<0){
+	if(avformat_find_stream_info(pFormatCtx,NULL)<0){//读取文件流中的package
 		printf("Couldn't find stream information.\n");
 		return -1;
 	}
 	videoindex=-1;
-	for(i=0; i<pFormatCtx->nb_streams; i++) 
-		if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO){
-			videoindex=i;
+	for (i = 0; i < pFormatCtx->nb_streams; i++) {//寻找第一帧视频
+		if (pFormatCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+			videoindex = i;
 			break;
 		}
+	}
 	if(videoindex==-1){
 		printf("Didn't find a video stream.\n");
 		return -1;
 	}
 
-	pCodecCtx=pFormatCtx->streams[videoindex]->codec;
-	pCodec=avcodec_find_decoder(pCodecCtx->codec_id);
+	pCodecCtx=pFormatCtx->streams[videoindex]->codec;//第一帧视频的编解码信息AVCodecContext
+	pCodec=avcodec_find_decoder(pCodecCtx->codec_id);//根据编解码信息寻找解码器AVCodec
 	if(pCodec==NULL){
 		printf("Codec not found.\n");
 		return -1;
 	}
-	if(avcodec_open2(pCodecCtx, pCodec,NULL)<0){
+	if(avcodec_open2(pCodecCtx, pCodec,NULL)<0){//初始化编解码信息AVCodecContext
 		printf("Could not open codec.\n");
 		return -1;
 	}
@@ -155,9 +156,9 @@ int main(int argc, char* argv[])
 	sdlRect.h=screen_h;
 
 	//SDL End----------------------
-	while(av_read_frame(pFormatCtx, packet)>=0){
+	while(av_read_frame(pFormatCtx, packet)>=0){//循环读取帧数据
 		if(packet->stream_index==videoindex){
-			ret = avcodec_decode_video2(pCodecCtx, pFrame, &got_picture, packet);
+			ret = avcodec_decode_video2(pCodecCtx, pFrame, &got_picture, packet);//解码
 			if(ret < 0){
 				printf("Decode Error.\n");
 				return -1;
